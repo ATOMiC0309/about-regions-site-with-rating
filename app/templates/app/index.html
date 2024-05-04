@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<style>
+    .rating-list li {
+      float: right;
+      color: #ddd;
+      padding: 10px 5px;
+    }
+
+    .rating-list li:hover,
+    .rating-list li:hover ~ li {
+      color: orange;
+    }
+
+    .rating-list {
+      display: inline-block;
+      list-style: none;
+    }
+    .checked {
+        color: orange;
+    }
+</style>
+<!-- Fruits Shop Start-->
+<div class="container">
+    <div class="container py-5">
+        <h1 class="mb-4">Viloyatlar va hududlar</h1>
+        <div class="row g-4">
+            <div class="col-lg-12">
+
+                <div class="row g-4">
+                    <div class="col-lg-3">
+                        <div class="row g-4">
+                            <div class="col-lg-12">
+                                <div class="mb-3"
+                                     style="margin-top: 1px; ">
+                                    <h4>Viloyatlar</h4>
+                                    <hr>
+                                    <ul class="list-unstyled">
+                                        {% for region in regions %}
+                                        <li>
+                                            <div>
+                                                <!-- Split dropright button -->
+                                                <div class="btn-group dropend mb-1">
+                                                    <a href="{% url 'region_detail' region.pk %}" type="button"
+                                                       class="btn btn-primary" style="width: 240px">
+                                                        {{ region.name }}
+
+                                                    </a>
+                                                    <button
+                                                            type="button"
+                                                            class="btn btn-warning dropdown-toggle dropdown-toggle-split"
+                                                            data-mdb-dropdown-init
+                                                            data-mdb-ripple-init
+                                                            aria-expanded="false"
+                                                    >
+                                                        <span class="visually-hidden">Toggle Dropright</span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" style="background-color: #d9dbdd;">
+                                                        <li>
+                                                            <hr class="dropdown-divider"/>
+                                                        </li>
+                                                        {% if region.territories.count > 0 %}
+                                                        {% for territory in region.territories.all %}
+                                                        <li><a class="dropdown-item"
+                                                               href="{% url 'region_detail' territory.pk %}">
+                                                            {{ territory.name }}</a>
+                                                        </li>
+                                                        {% endfor %}
+                                                        {% else %}
+                                                        <li><a class="dropdown-item" href="#">Hech narsa.</a>
+                                                        </li>
+                                                        {% endif %}
+                                                        <li>
+                                                            <hr class="dropdown-divider"/>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                    <hr>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-9">
+                        <div class="row g-3 justify-content-center">
+
+                            <!--   central card    -->
+                            <div class="card text-between border border-primary shadow-0"
+                                 style="background-color:#e6e6e6;">
+                                <div class="d-flex">
+
+                                    <ul class=" list-inline rating-list">
+                                        {% if selected_region and request.user.is_authenticated %}
+                                        <li onclick="rate(5, {{ selected_region.id }})">
+                                            <i class="fa fa-star {% if selected_region.user_rating > 4 %} checked {% endif %}"
+                                               title="Rate 5"></i></li>
+                                        <li onclick="rate(4, {{ selected_region.id }})">
+                                            <i class="fa fa-star {% if selected_region.user_rating > 3 %} checked {% endif %}"
+                                               title="Rate 4"></i></li>
+                                        <li onclick="rate(3, {{ selected_region.id }})">
+                                            <i class="fa fa-star {% if selected_region.user_rating > 2 %} checked {% endif %}"
+                                               title="Rate 3"></i></li>
+                                        <li onclick="rate(2, {{ selected_region.id }})">
+                                            <i class="fa fa-star {% if selected_region.user_rating > 1 %} checked {% endif %}"
+                                               title="Rate 2"></i></li>
+                                        <li onclick="rate(1, {{ selected_region.id }})">
+                                            <i class="fa fa-star {% if selected_region.user_rating > 0 %} checked {% endif %}"
+                                               title="Rate 1"></i></li>
+                                        {% else %}
+                                        <li style="color: black">
+                                            Baholash uchun tizimga kiring va hududni tanlang.
+                                            <a href="{% url 'login' %}">Tizimga kirish.</a>
+                                        </li>
+                                        {% endif %}
+                                        <li style="color: black"><b>Baholash:</b></li>
+                                    </ul>
+                                </div>
+
+                                <div>
+
+                                    <div class="d-flex " style="margin-left:57px">
+                                        <div class="card-footer text-center">
+                                            <p><b>
+                                                <h4>
+                                                    {% if selected_region.name %}
+                                                    {{ selected_region.name }}
+
+                                                    {% else %}
+                                                    Tanlangan hudud <br> nomi
+                                                    {% endif %}
+                                                </h4>
+                                            </b></p>
+
+                                        </div>
+                                        <div class="card-header">
+                                            <p>
+                                                <b>Hudud haqida: </b>
+                                                {% if selected_region.area_info %}
+                                                {{ selected_region.area_info }}
+                                                {% else %}
+                                                Tanlangan hudud haiqa ma'lumot.
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex" style="margin-left:57px">
+                                        <div class="card-header">
+                                            <p>
+                                                <b>Aholisi: </b>
+                                                {% if selected_region.population %}
+                                                {{ selected_region.population }}
+                                                (<b>{{ selected_region.population_compared_to }}</b>-yil hisobiga
+                                                ko'ra.)
+                                                {% else %}
+                                                Tanlangan hudud aholi soni
+                                                {% endif %}
+
+                                            </p>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-image hover-overlay ripple text-center mt-8"
+                                     data-mdb-ripple-color="light">
+                                    {% if selected_region.image %}
+                                    <img src="{{ selected_region.image.url }}"
+                                         class="img"/>
+                                    <a href="#!">
+                                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15)"></div>
+                                    </a>
+                                    {% else %}
+                                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOl5h_VGoxwBVBMyq1Wbl56swafvs_BVibb88UW5JJzg&s"
+                                         class="img"/>
+                                    <a href="#!">
+                                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15)"></div>
+                                    </a>
+                                    {% endif %}
+                                </div>
+
+
+                                <div class="card-footer text-center">
+
+                                    <p><b>Joylangan vaqti: </b>{{ selected_region.created }}</p></div>
+                            </div>
+                            <!--   central card    -->
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fruits Shop End-->
+<script>
+    const rate = (rating, post_id) => {
+        fetch(`/rate/${post_id}/${rating}/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(rest => {
+            window.location.reload();
+            // you may want to update the rating here
+            // to simplify stuff, I just reload the page
+        })
+    }
+</script>
+{% endblock main %}
